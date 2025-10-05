@@ -1,12 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 export default function LoveLetterPage() {
   const [opened, setOpened] = useState(false);
+  const audioRef = useRef(null);
+  const { scrollYProgress } = useScroll();
+
+  // Fade the music volume between 0.2–1 depending on scroll
+  const volume = useTransform(scrollYProgress, [0, 1], [1, 0.2]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      const unsubscribe = volume.on("change", (v) => {
+        audioRef.current.volume = v;
+      });
+      return () => unsubscribe();
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    if (opened && audioRef.current) {
+      audioRef.current.play().catch(() => {
+        console.log("Autoplay blocked until user interacts");
+      });
+    }
+  }, [opened]);
+
 
   const sections = [
     {
@@ -36,176 +59,177 @@ You are the reason songs sound better and days feel brighter♥♥`,
   ];
 
   const carouselImages = [
-    "/us6.jpg",
-    "/us7.jpg",
-    "/us8.jpg",
-    "/us9.jpg",
-    "/us10.jpg",
-    "/us11.jpg",
-    "/us12.jpg",
-    "/us13.jpg",
-    "/us14.jpg",
-    "/us15.jpg",
-    "/us16.jpg",
-    "/us17.jpg",
+    "/us6.jpg", "/us7.jpg", "/us8.jpg", "/us9.jpg", "/us10.jpg",
+    "/us11.jpg", "/us12.jpg", "/us13.jpg", "/us14.jpg", "/us15.jpg",
   ];
-    const songLink = "https://open.anghami.com/Wq9XJzFscXb"; 
+
+  const localSong = "/Mettamena.mp3"; // replace with your mp3 file path
+  const songLink = "https://open.anghami.com/Wq9XJzFscXb";
+
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-900 via-purple-900 to-black text-white font-sans overflow-hidden scroll-smooth">
-        {!opened ? (
-          <div className="flex flex-col items-center">
-            {/* Envelope */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-900 via-purple-900 to-black text-white font-sans overflow-hidden">
+      {/* Background Music */}
+      <audio ref={audioRef} src={localSong} loop preload="auto" />
+
+      {!opened ? (
+        <div className="flex flex-col items-center justify-center text-center space-y-8">
+          <motion.div
+            className="relative w-72 h-48 cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.4 }}
+            onClick={() => setOpened(true)}
+          >
+            <div className="absolute bottom-0 left-0 w-full h-3/4 bg-pink-400 rounded-b-2xl shadow-2xl"></div>
             <motion.div
-              className="relative w-64 h-40 cursor-pointer"
-              onClick={() => setOpened(true)}
+              className="absolute top-0 left-0 w-0 h-0 border-l-[144px] border-r-[144px] border-b-[90px] border-l-transparent border-r-transparent border-b-pink-500 origin-top"
+              animate={{ rotateX: opened ? 180 : 0 }}
+              transition={{ duration: 1 }}
+            ></motion.div>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 1.2 }}
+            className="text-xl italic text-pink-200"
+          >
+            Click the envelope to open 💌
+          </motion.p>
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 2 }}
+          className="bg-gradient-to-b from-rose-50 via-pink-100 to-white text-gray-800"
+        >
+          {/* Hero */}
+          <section className="h-screen flex flex-col items-center justify-center text-center px-6">
+            <motion.h1
+              className="text-7xl md:text-8xl font-extrabold mb-6 text-pink-700 drop-shadow-lg"
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
             >
-              {/* Envelope body */}
-              <div className="absolute bottom-0 left-0 w-full h-3/4 bg-pink-400 rounded-b-xl shadow-xl"></div>
+              For You ❤️
+            </motion.h1>
+            <motion.p
+              className="text-xl md:text-2xl max-w-3xl leading-relaxed text-gray-600"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 1 }}
+            >
+              A little page I made for you — take your time scrolling through it.
+            </motion.p>
+          </section>
 
-              {/* Envelope flap (triangle) */}
+          {/* Sections */}
+          {sections.map((section, i) => (
+            <section
+              key={i}
+              className={`min-h-[90vh] flex flex-col md:flex-row items-center justify-center gap-10 px-8 py-20 ${
+                i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+              }`}
+            >
               <motion.div
-                className="absolute top-0 left-0 w-0 h-0 border-l-[128px] border-r-[128px] border-b-[80px] border-l-transparent border-r-transparent border-b-pink-500 origin-top"
-                animate={{ rotateX: opened ? 180 : 0 }}
+                className="md:w-1/2 backdrop-blur-md bg-white/60 p-10 rounded-3xl shadow-2xl border border-white/40"
+                initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 1 }}
-              ></motion.div>
-            </motion.div>
-
-            <p className="mt-6 text-lg italic text-pink-200">
-              Click the envelope to open 💌
-            </p>
-          </div>
-        ) : (
-          <div className="min-h-screen bg-gradient-to-b from-pink-200 via-purple-200 to-white font-sans">
-            {/* Hero */}
-            <section className="h-screen flex flex-col items-center justify-center text-center px-6">
-              <motion.h1
-                className="text-6xl font-bold mb-4 text-pink-700"
-                initial={{ opacity: 0, y: -30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9 }}
               >
-                For You ❤️
-              </motion.h1>
-              <motion.p
-                className="text-lg max-w-2xl leading-relaxed text-gray-700"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8, duration: 0.9 }}
-              >
-                A little page I made for you — keep scrolling to see everything.
-              </motion.p>
-            </section>
+                <p className="text-lg md:text-xl leading-loose whitespace-pre-line">
+                  {section.text}
+                </p>
+              </motion.div>
 
-            {/* Messages with images */}
-            {sections.map((section, i) => (
-              <section
-                key={i}
-                className={`min-h-[80vh] flex flex-col md:flex-row items-center justify-center px-6 py-12 gap-8 ${
-                  i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                }`}
-              >
-                <motion.div
-                  className="md:w-1/2 bg-white/80 p-6 rounded-2xl shadow-xl text-gray-800"
-                  initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <p className="text-lg leading-relaxed whitespace-pre-line">
-                    {section.text}
-                  </p>
-                </motion.div>
-
-                <motion.img
-                  src={section.img}
-                  alt={`memory ${i + 1}`}
-                  className="md:w-1/3 rounded-3xl shadow-2xl object-cover"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.8 }}
-                />
-              </section>
-            ))}
-
-            {/* Carousel Section */}
-            <section className="px-6 py-16 bg-pink-50">
-              <h2 className="text-3xl font-semibold text-center mb-8 text-pink-700">
-                Some of Our Memories 💕
-              </h2>
-              <Carousel
-                showThumbs={false}
-                infiniteLoop
-                autoPlay
-                interval={3000}
-                className="max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-xl"
-              >
-                {carouselImages.map((img, i) => (
-                  <div key={i}>
-                    <img
-                      src={img}
-                      alt={`carousel ${i}`}
-                      className="rounded-2xl shadow-lg"
-                    />
-                  </div>
-                ))}
-              </Carousel>
-            </section>
-            {/* Closing */}
-            <section className="h-screen flex flex-col items-center justify-center text-center px-6 bg-gradient-to-t from-purple-200 via-pink-100 to-white">
-              <motion.h3
-                className="text-3xl md:text-4xl font-semibold mb-6 text-gray-800"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <motion.img
+                src={section.img}
+                alt={`memory ${i + 1}`}
+                className="md:w-1/3 w-4/5 rounded-3xl shadow-2xl object-cover border-4 border-white"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.8 }}
-              >
-                You are the reason songs sound better and days feel brighter ♥♥
-              </motion.h3>
-
-              <a
-                href={songLink}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-flex items-center gap-3 px-6 py-3 bg-pink-600 text-white rounded-xl shadow-lg hover:bg-pink-700 transition"
-              >
-                Play Our Song 🎶
-              </a>
+              />
             </section>
+          ))}
 
-            {/* Video Section */}
-            <section className="px-6 py-16 bg-white flex flex-col items-center justify-center text-center">
-              <h2 className="text-3xl font-semibold text-pink-700 mb-6">
-                A Special Videos Just for Us 🎥
-              </h2>
-              <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-xl">
-                <video
-                  controls
-                  className="w-full h-auto rounded-2xl"
-                  poster="us8.jpg"
-                >
-                  <source src="/vid1.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-                <video
-                  controls
-                  className="w-full h-auto rounded-2xl my-6"
-                  poster="us9.jpg"
-                >
-                  <source src="/vid2.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </section>
+          {/* Carousel Section */}
+          <section className="px-6 py-20 bg-gradient-to-t from-pink-100 via-rose-50 to-white text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-pink-700 mb-12">
+              Our Memories 💕
+            </h2>
+            <Carousel
+              showThumbs={false}
+              infiniteLoop
+              autoPlay
+              interval={3500}
+              showStatus={false}
+              className="max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl"
+            >
+              {carouselImages.map((img, i) => (
+                <div key={i}>
+                  <img
+                    src={img}
+                    alt={`carousel ${i}`}
+                    className="rounded-3xl object-contain max-h-[600px]"
+                  />
+                </div>
+              ))}
+            </Carousel>
+          </section>
 
-            <footer className="py-6 text-center text-xs text-gray-500">
-              Made with ❤️ by Youssef
-            </footer>
-          </div>
-        )}
-      </div>
-    </>
+          {/* Closing */}
+          <section className="h-screen flex flex-col items-center justify-center text-center bg-gradient-to-t from-purple-200 via-pink-100 to-white px-8">
+            <motion.h3
+              className="text-3xl md:text-4xl font-semibold mb-8 text-gray-800 leading-relaxed max-w-2xl"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+            >
+              You are the reason songs sound better and days feel brighter ♥♥
+            </motion.h3>
+            <a
+              href={songLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-2xl text-lg font-medium shadow-lg hover:scale-105 transition-transform"
+            >
+              Play Our Song 🎶
+            </a>
+          </section>
+
+          {/* Videos */}
+          <section className="px-6 py-20 bg-white text-center">
+            <h2 className="text-4xl font-bold text-pink-700 mb-10">
+              A Few Special Moments 🎥
+            </h2>
+            <div className="w-full max-w-4xl mx-auto space-y-10">
+              <video
+                controls
+                className="w-full rounded-3xl shadow-2xl"
+                poster="us8.jpg"
+              >
+                <source src="/vid1.mp4" type="video/mp4" />
+              </video>
+              <video
+                controls
+                className="w-full rounded-3xl shadow-2xl"
+                poster="us9.jpg"
+              >
+                <source src="/vid2.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </section>
+
+          <footer className="py-8 text-center text-sm text-gray-500">
+            Made with ❤️ by Youssef
+          </footer>
+        </motion.div>
+      )}
+    </div>
   );
 }
